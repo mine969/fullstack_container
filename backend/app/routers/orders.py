@@ -39,7 +39,9 @@ def read_orders(
     if current_user.role == "manager":
         return db.query(models.Order).offset(skip).limit(limit).all()
     elif current_user.role == "driver":
-        # TODO: Filter by assignment
-        return [] 
+        return db.query(models.Order).join(models.DriverAssignment).filter(
+            models.DriverAssignment.driver_id == current_user.id,
+            models.DriverAssignment.status == "active" # Assuming 'active' assignment
+        ).all() 
     else:
         return db.query(models.Order).filter(models.Order.customer_id == current_user.id).all()

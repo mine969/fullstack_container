@@ -87,3 +87,8 @@ CREATE TABLE messages (
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
 );
+
+-- Indexes for performance
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_driver_assignments_status ON driver_assignments(status);
+CREATE INDEX idx_users_email ON users(email);
