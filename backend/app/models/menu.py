@@ -9,4 +9,5 @@ class MenuItem(Base):
     description = Column(Text)
     price = Column(DECIMAL(10, 2), nullable=False)
     image_url = Column(String(255))
+    category = Column(String(50))
     is_available = Column(Boolean, default=True)

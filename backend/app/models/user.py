@@ -16,6 +16,8 @@ class User(Base):
 
     # Relationships (optional for current tests)
     customer = relationship("Customer", back_populates="user", uselist=False)
+    driver_assignments = relationship("DriverAssignment", back_populates="driver")
+    driver_locations = relationship("DriverLocation", back_populates="driver")
 
 
 class Customer(Base):
@@ -28,6 +30,5 @@ class Customer(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="customer")
-    # orders relationship placeholder (not needed for current tests)
-    # orders = relationship("Order", back_populates="customer")
+    orders = relationship("Order", back_populates="customer")
 

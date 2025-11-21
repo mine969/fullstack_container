@@ -36,7 +36,7 @@ def test_create_menu_item_as_manager(client, test_manager):
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Burger"
-    assert data["price"] == 9.99
+    assert float(data["price"]) == 9.99
 
 
 def test_create_menu_item_as_customer(client, auth_headers):

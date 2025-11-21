@@ -5,6 +5,7 @@ pymysql
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
+bcrypt==4.0.1
 pytest
 pytest-asyncio
 httpx

@@ -15,10 +15,15 @@ from app.models.user import User
 from app.auth import get_password_hash
 
 # Use in-memory SQLite for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+from sqlalchemy.pool import StaticPool
+
+# Use in-memory SQLite for testing to avoid disk I/O errors and ensure fresh schema
+SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, 
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

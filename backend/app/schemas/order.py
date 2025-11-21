@@ -18,6 +18,7 @@ class OrderResponse(BaseModel):
     total_amount: Decimal
     created_at: datetime
     delivery_address: str
+    customer_id: int
 
     class Config:
         from_attributes = True

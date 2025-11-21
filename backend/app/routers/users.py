@@ -16,7 +16,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid role. Must be one of: customer, manager, driver",
         )
-    # Duplicate‑email check
+    # Duplicate-email check
     if db.query(models.User).filter(models.User.email == user.email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
     # Hash password and create user
@@ -25,7 +25,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
         email=user.email,
         name=user.name,
         role=user.role,
-        password_hash=hashed_password,
+        hashed_password=hashed_password,
     )
     db.add(db_user)
     db.commit()

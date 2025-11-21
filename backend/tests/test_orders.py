@@ -14,7 +14,7 @@ def test_menu_item(db):
         description="Test burger",
         price=10.00,
         category="Main",
-        available=True
+        is_available=True
     )
     db.add(item)
     db.commit()
@@ -32,14 +32,15 @@ def test_create_order(client, auth_headers, test_menu_item):
                     "menu_item_id": test_menu_item.id,
                     "quantity": 2
                 }
-            ]
+            ],
+            "delivery_address": "123 Test St"
         },
         headers=auth_headers
     )
     assert response.status_code == 200
     data = response.json()
     assert "id" in data
-    assert data["status"] == "PENDING"
+    assert data["status"] == "pending"
 
 
 def test_create_order_unauthorized(client, test_menu_item):
@@ -52,7 +53,8 @@ def test_create_order_unauthorized(client, test_menu_item):
                     "menu_item_id": test_menu_item.id,
                     "quantity": 1
                 }
-            ]
+            ],
+            "delivery_address": "123 Test St"
         }
     )
     assert response.status_code == 401
@@ -61,7 +63,7 @@ def test_create_order_unauthorized(client, test_menu_item):
 def test_list_orders_as_customer(client, auth_headers, test_user, db):
     """Test that customers only see their own orders"""
     # Create an order for the test user
-    order = Order(customer_id=test_user.id, total_price=20.00, status="PENDING")
+    order = Order(customer_id=test_user.id, total_amount=20.00, status="PENDING", delivery_address="123 Test St")
     db.add(order)
     db.commit()
     
@@ -85,8 +87,8 @@ def test_list_orders_as_manager(client, test_manager, db, test_user):
     headers = {"Authorization": f"Bearer {token}"}
     
     # Create orders for different users
-    order1 = Order(customer_id=test_user.id, total_price=15.00, status="PENDING")
-    order2 = Order(customer_id=test_manager.id, total_price=25.00, status="COMPLETED")
+    order1 = Order(customer_id=test_user.id, total_amount=15.00, status="PENDING", delivery_address="123 Test St")
+    order2 = Order(customer_id=test_manager.id, total_amount=25.00, status="COMPLETED", delivery_address="456 Manager Ave")
     db.add_all([order1, order2])
     db.commit()
     

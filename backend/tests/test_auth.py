@@ -55,8 +55,9 @@ def test_token_expiration(client, test_user):
     token = response.json()["access_token"]
     
     # Decode token to check expiration (without verification for testing)
-    import jwt
-    payload = jwt.decode(token, options={"verify_signature": False})
+    from jose import jwt
+    from app.auth import SECRET_KEY, ALGORITHM
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], options={"verify_signature": False})
     assert "exp" in payload
     assert "sub" in payload
     assert payload["sub"] == test_user.email
