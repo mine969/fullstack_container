@@ -6,6 +6,10 @@ pipeline {
         COMPOSE_PROJECT_NAME = "fullstack-app"
     }
 
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     stages {
         stage('Checkout') {
             steps {
