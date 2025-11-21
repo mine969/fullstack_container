@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://3.106.186.172/api';
 
 export const api = {
   async register(name, email, password, role = 'customer') {
