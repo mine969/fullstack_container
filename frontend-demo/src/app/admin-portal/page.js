@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Login() {
+export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +25,9 @@ export default function Login() {
       } else if (user.role === 'driver') {
         router.push('/driver');
       } else {
-        router.push('/orders');
+        // If a customer somehow logs in here, redirect them away or show error
+        setError('Access denied. Staff only.');
+        localStorage.removeItem('token');
       }
     } catch (err) {
       setError('Invalid credentials');
@@ -40,10 +42,10 @@ export default function Login() {
             <Image src="/logo.png" alt="Logo" width={80} height={80} className="mx-auto h-20 w-auto object-contain" />
           </Link>
           <h2 className="mt-6 text-center text-3xl font-display text-brown-900 tracking-wide">
-            STAFF LOGIN
+            ADMIN PORTAL
           </h2>
           <p className="mt-2 text-center text-sm text-brown-800">
-            Access the kitchen, driver, or admin dashboard
+            Authorized Personnel Only
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>

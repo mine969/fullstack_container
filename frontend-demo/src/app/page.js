@@ -17,7 +17,6 @@ export default function Home() {
               <Link href="/menu" className="font-bold text-brown-900 hover:text-primary transition">Menu</Link>
               <Link href="/track" className="font-bold text-brown-900 hover:text-primary transition">Track Order</Link>
               <Link href="/about" className="font-bold text-brown-900 hover:text-primary transition">About</Link>
-              <Link href="/login" className="btn-secondary text-sm px-4 py-2">Staff Login</Link>
             </div>
           </div>
         </div>

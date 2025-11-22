@@ -11,12 +11,9 @@ export default function Menu() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
     loadMenu();
   }, []);
 
@@ -37,9 +34,7 @@ export default function Menu() {
 
   const placeOrder = async () => {
     try {
-      const token = localStorage.getItem('token');
-      
-      if (!token && (!guestDetails.name || !guestDetails.phone || !guestDetails.address)) {
+      if (!guestDetails.name || !guestDetails.phone || !guestDetails.address) {
         alert('Please fill in all guest details');
         return;
       }
@@ -51,9 +46,9 @@ export default function Menu() {
 
       const newOrder = await api.createOrder(
         orderItems, 
-        token, 
-        token ? "123 Demo St" : guestDetails.address, 
-        token ? null : { 
+        null, // No token
+        guestDetails.address, 
+        { 
           guest_name: guestDetails.name, 
           guest_email: "guest@example.com", 
           guest_phone: guestDetails.phone 
@@ -62,7 +57,7 @@ export default function Menu() {
       
       alert(`Order placed successfully! Your Order ID is: ${newOrder.id}\n\nPlease save this ID to track your order.`);
       setCart([]);
-      if (!token) setGuestDetails({ name: '', phone: '', address: '' });
+      setGuestDetails({ name: '', phone: '', address: '' });
     } catch (err) {
       alert(err.message);
     }
@@ -80,27 +75,7 @@ export default function Menu() {
               <span className="text-2xl font-display text-primary tracking-wider transform rotate-[-2deg]">BURGER DELIVERY</span>
             </Link>
             <div className="flex items-center gap-6">
-              {isLoggedIn && (
-                <>
-                  <Link href="/orders" className="font-bold text-brown-900 hover:text-primary transition">My Orders</Link>
-                  <button
-                    onClick={() => { 
-                      localStorage.removeItem('token'); 
-                      setIsLoggedIn(false); 
-                      setGuestDetails({ name: '', phone: '', address: '' });
-                    }}
-                    className="font-bold text-red-600 hover:text-red-800 transition"
-                  >
-                    Logout
-                  </button>
-                </>
-              )}
-              {!isLoggedIn && (
-                <>
-                  <Link href="/track" className="font-bold text-brown-900 hover:text-primary transition">Track Order</Link>
-                  <Link href="/login" className="font-bold text-brown-900 hover:text-primary transition">Staff Login</Link>
-                </>
-              )}
+              <Link href="/track" className="font-bold text-brown-900 hover:text-primary transition">Track Order</Link>
               <div className="bg-primary text-white px-4 py-2 rounded-full font-bold shadow-md">
                 Cart: {cart.length}
               </div>
@@ -168,53 +143,30 @@ export default function Menu() {
                       <span>${cart.reduce((sum, item) => sum + Number(item.price), 0).toFixed(2)}</span>
                   </div>
 
-                  {isLoggedIn && (
-                    <div className="bg-green-50 p-4 rounded-xl border border-green-100 mb-4">
-                      <p className="text-green-800 text-sm font-bold mb-2">
-                        You are logged in.
-                      </p>
-                      <p className="text-green-700 text-xs mb-3">
-                        We'll use your profile address for delivery.
-                      </p>
-                      <button
-                        onClick={() => { 
-                          localStorage.removeItem('token'); 
-                          setIsLoggedIn(false); 
-                          setGuestDetails({ name: '', phone: '', address: '' });
-                        }}
-                        className="text-xs bg-white border border-green-200 text-green-700 px-3 py-1 rounded-full font-bold hover:bg-green-100 transition"
-                      >
-                        Not you? Logout
-                      </button>
-                    </div>
-                  )}
-
-                  {!isLoggedIn && (
-                    <div className="space-y-3 bg-cream-100 p-4 rounded-xl">
-                      <h3 className="font-bold text-brown-900 text-sm uppercase tracking-wider">Guest Details</h3>
-                      <input
-                        type="text"
-                        placeholder="Name"
-                        className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
-                        value={guestDetails.name}
-                        onChange={e => setGuestDetails({...guestDetails, name: e.target.value})}
-                      />
-                      <input
-                        type="tel"
-                        placeholder="Phone"
-                        className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
-                        value={guestDetails.phone}
-                        onChange={e => setGuestDetails({...guestDetails, phone: e.target.value})}
-                      />
-                      <input
-                        type="text"
-                        placeholder="Delivery Address"
-                        className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
-                        value={guestDetails.address}
-                        onChange={e => setGuestDetails({...guestDetails, address: e.target.value})}
-                      />
-                    </div>
-                  )}
+                  <div className="space-y-3 bg-cream-100 p-4 rounded-xl">
+                    <h3 className="font-bold text-brown-900 text-sm uppercase tracking-wider">Guest Details</h3>
+                    <input
+                      type="text"
+                      placeholder="Name"
+                      className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
+                      value={guestDetails.name}
+                      onChange={e => setGuestDetails({...guestDetails, name: e.target.value})}
+                    />
+                    <input
+                      type="tel"
+                      placeholder="Phone"
+                      className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
+                      value={guestDetails.phone}
+                      onChange={e => setGuestDetails({...guestDetails, phone: e.target.value})}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Delivery Address"
+                      className="w-full p-2 border border-cream-200 rounded-lg text-brown-900 focus:ring-2 focus:ring-primary focus:outline-none bg-white"
+                      value={guestDetails.address}
+                      onChange={e => setGuestDetails({...guestDetails, address: e.target.value})}
+                    />
+                  </div>
                   
                   <button
                     onClick={placeOrder}

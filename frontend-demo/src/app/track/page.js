@@ -43,9 +43,6 @@ export default function TrackOrder() {
             </Link>
             <div className="flex items-center gap-6">
                 <Link href="/menu" className="text-brown-600 hover:text-primary font-bold transition-colors">Menu</Link>
-                <Link href="/login" className="px-6 py-2 bg-brown-900 text-white rounded-full font-bold hover:bg-brown-800 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
-                  Login
-                </Link>
             </div>
           </div>
         </div>

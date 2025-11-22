@@ -18,7 +18,7 @@ export default function DriverDashboard() {
   const checkUser = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/login');
+      router.push('/admin-portal');
       return;
     }
     try {
@@ -30,7 +30,7 @@ export default function DriverDashboard() {
         loadOrders(token);
       }
     } catch (err) {
-      router.push('/login');
+      router.push('/admin-portal');
     }
   };
 
@@ -66,7 +66,7 @@ export default function DriverDashboard() {
             <div className="flex items-center gap-4">
               <span className="text-brown-900 font-bold">Hello, {user?.name}</span>
               <button
-                onClick={() => { localStorage.removeItem('token'); router.push('/login'); }}
+                onClick={() => { localStorage.removeItem('token'); router.push('/admin-portal'); }}
                 className="text-sm text-red-600 hover:text-red-800 font-bold"
               >
                 LOGOUT
