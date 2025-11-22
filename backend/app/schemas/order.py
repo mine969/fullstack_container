@@ -2,10 +2,21 @@ from pydantic import BaseModel
 from typing import List, Optional
 from decimal import Decimal
 from datetime import datetime
+from .menu import MenuItemResponse
 
 class OrderItemBase(BaseModel):
     menu_item_id: int
     quantity: int
+
+class OrderItemResponse(BaseModel):
+    id: int
+    menu_item_id: int
+    quantity: int
+    item_price: Decimal
+    menu_item: MenuItemResponse
+
+    class Config:
+        from_attributes = True
 
 class OrderCreate(BaseModel):
     items: List[OrderItemBase]
@@ -23,6 +34,7 @@ class OrderResponse(BaseModel):
     delivery_address: str
     customer_id: Optional[int] = None
     guest_name: Optional[str] = None
+    items: List[OrderItemResponse] = []
 
     class Config:
         from_attributes = True

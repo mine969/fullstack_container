@@ -1,4 +1,4 @@
-const API_URL = '/api';
+const API_URL = 'http://localhost:8000';
 
 export const api = {
   async register(name, email, password, role = 'customer') {
@@ -77,16 +77,66 @@ export const api = {
     return res.json();
   },
 
-  async updateOrderStatus(orderId, status, token) {
+  async getOrder(id) {
+    const res = await fetch(`${API_URL}/orders/${id}`);
+    if (!res.ok) throw new Error('Order not found');
+    return res.json();
+  },
+
+  async getDrivers(token) {
+    const res = await fetch(`${API_URL}/users/drivers`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to fetch drivers');
+    return res.json();
+  },
+
+  updateOrderStatus: async (orderId, status, token) => {
     const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
       method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` 
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ status }),
     });
     if (!res.ok) throw new Error('Failed to update status');
+    return res.json();
+  },
+
+  assignDriver: async (orderId, driverId, token) => {
+    const res = await fetch(`${API_URL}/orders/${orderId}/assign`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ driver_id: parseInt(driverId) }),
+    });
+    if (!res.ok) throw new Error('Failed to assign driver');
+    return res.json();
+  },
+
+  createMenuItem: async (item, token) => {
+    const res = await fetch(`${API_URL}/menu/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) throw new Error('Failed to create menu item');
+    return res.json();
+  },
+
+  updateMenuItem: async (id, item, token) => {
+    const res = await fetch(`${API_URL}/menu/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(item),
+    });
+    if (!res.ok) throw new Error('Failed to update menu item');
+    return res.json();
+  },
+
+  deleteMenuItem: async (id, token) => {
+    const res = await fetch(`${API_URL}/menu/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to delete menu item');
     return res.json();
   },
 };

@@ -1,6 +1,7 @@
 # backend/app/routers/users.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import List
 from .. import database, models, auth
 from ..schemas import user as schemas
 
@@ -33,5 +34,14 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
     return db_user
 
 @router.get("/me", response_model=schemas.UserResponse)
-def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
+def read_users_me(current_user: models.User = Depends(auth.get_current_active_user)):
     return current_user
+
+@router.get("/drivers", response_model=List[schemas.UserResponse])
+def get_drivers(
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    return db.query(models.User).filter(models.User.role == "driver").all()

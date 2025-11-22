@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { api } from '@/lib/api';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -10,66 +11,88 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     try {
       const data = await api.login(email, password);
       localStorage.setItem('token', data.access_token);
       
-      // Fetch user details to check role
+      // Get user role
       const user = await api.getMe(data.access_token);
       
-      if (user.role === 'driver') {
-        router.push('/driver');
-      } else if (user.role === 'manager' || user.role === 'admin') {
+      if (user.role === 'admin' || user.role === 'manager') {
         router.push('/staff');
+      } else if (user.role === 'driver') {
+        router.push('/driver');
       } else {
-        router.push('/menu'); // Fallback for customers
+        router.push('/orders');
       }
     } catch (err) {
-      setError(err.message);
+      setError('Invalid credentials');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        <h2 className="text-3xl font-bold text-center text-gray-900">Sign in</h2>
-        {error && <div className="p-3 bg-red-100 text-red-700 rounded-md text-center">{error}</div>}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <input
-              type="email"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <input
-              type="password"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Sign in
-          </button>
-        </form>
+    <div className="min-h-screen flex items-center justify-center bg-cream-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 card p-8 border-t-4 border-primary">
         <div className="text-center">
-          <Link href="/" className="text-blue-600 hover:underline">
-            Back to Home
+          <Link href="/" className="inline-block">
+            <Image src="/logo.png" alt="Logo" width={80} height={80} className="mx-auto h-20 w-auto object-contain" />
           </Link>
+          <h2 className="mt-6 text-center text-3xl font-display text-brown-900 tracking-wide">
+            STAFF LOGIN
+          </h2>
+          <p className="mt-2 text-center text-sm text-brown-800">
+            Access the kitchen, driver, or admin dashboard
+          </p>
         </div>
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          {error && <div className="text-red-600 text-center bg-red-50 p-2 rounded border border-red-200">{error}</div>}
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div className="mb-4">
+              <label htmlFor="email-address" className="sr-only">Email address</label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-cream-100 placeholder-gray-400 text-brown-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-cream-100 placeholder-gray-400 text-brown-900 focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm bg-white"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-full text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-transform hover:scale-105 shadow-lg"
+            >
+              SIGN IN
+            </button>
+          </div>
+          <div className="text-center">
+             <Link href="/" className="text-sm text-primary hover:text-primary-dark font-medium">
+                Back to Home
+             </Link>
+          </div>
+        </form>
       </div>
     </div>
   );
