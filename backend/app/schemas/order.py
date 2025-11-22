@@ -11,6 +11,9 @@ class OrderCreate(BaseModel):
     items: List[OrderItemBase]
     delivery_address: str
     notes: Optional[str] = None
+    guest_name: Optional[str] = None
+    guest_email: Optional[str] = None
+    guest_phone: Optional[str] = None
 
 class OrderResponse(BaseModel):
     id: int
@@ -18,7 +21,8 @@ class OrderResponse(BaseModel):
     total_amount: Decimal
     created_at: datetime
     delivery_address: str
-    customer_id: int
+    customer_id: Optional[int] = None
+    guest_name: Optional[str] = None
 
     class Config:
         from_attributes = True

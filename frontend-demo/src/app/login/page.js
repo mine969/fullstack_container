@@ -16,7 +16,17 @@ export default function Login() {
     try {
       const data = await api.login(email, password);
       localStorage.setItem('token', data.access_token);
-      router.push('/menu');
+      
+      // Fetch user details to check role
+      const user = await api.getMe(data.access_token);
+      
+      if (user.role === 'driver') {
+        router.push('/driver');
+      } else if (user.role === 'manager' || user.role === 'admin') {
+        router.push('/staff');
+      } else {
+        router.push('/menu'); // Fallback for customers
+      }
     } catch (err) {
       setError(err.message);
     }
@@ -56,8 +66,8 @@ export default function Login() {
           </button>
         </form>
         <div className="text-center">
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Don't have an account? Register
+          <Link href="/" className="text-blue-600 hover:underline">
+            Back to Home
           </Link>
         </div>
       </div>

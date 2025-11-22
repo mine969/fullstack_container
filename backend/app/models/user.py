@@ -7,11 +7,11 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    name = Column(String, nullable=False)
-    role = Column(String, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    role = Column(String(50), nullable=False)
     # Store the hash in the DB column named password_hash but expose as hashed_password
-    hashed_password = Column("password_hash", String, nullable=False)
+    hashed_password = Column("password_hash", String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships (optional for current tests)

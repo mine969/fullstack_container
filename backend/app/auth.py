@@ -15,7 +15,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -50,6 +50,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     return user
+
+async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme)) -> Optional[User]:
+    if not token:
+        return None
+    try:
+        return await get_current_user(token)
+    except HTTPException:
+        return None
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
     # Add active check if needed
