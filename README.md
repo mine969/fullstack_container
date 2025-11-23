@@ -46,3 +46,6 @@ This is a Dockerized fullstack prototype for the Food Delivery App.
 
 - If ports 80 or 3306 are busy, stop other services or edit `docker-compose.yml`.
 - Use `docker-compose logs -f` to see server logs.
+
+© 2025 [Hein Htet Zaw]. All rights reserved.
+This project is for educational and demonstration purposes only. Do not use or distribute without permission.
