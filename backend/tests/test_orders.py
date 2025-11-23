@@ -43,8 +43,8 @@ def test_create_order(client, auth_headers, test_menu_item):
     assert data["status"] == "pending"
 
 
-def test_create_order_unauthorized(client, test_menu_item):
-    """Test that unauthenticated users cannot create orders"""
+def test_create_order_missing_guest_info(client, test_menu_item):
+    """Test that creating an order without user or guest info fails"""
     response = client.post(
         "/orders/",
         json={
@@ -57,7 +57,32 @@ def test_create_order_unauthorized(client, test_menu_item):
             "delivery_address": "123 Test St"
         }
     )
-    assert response.status_code == 401
+    assert response.status_code == 400
+    assert "Guest name and phone required" in response.json()["detail"]
+
+
+def test_create_guest_order(client, test_menu_item):
+    """Test creating a guest order"""
+    response = client.post(
+        "/orders/",
+        json={
+            "items": [
+                {
+                    "menu_item_id": test_menu_item.id,
+                    "quantity": 1
+                }
+            ],
+            "delivery_address": "123 Guest St",
+            "guest_name": "Guest User",
+            "guest_phone": "555-0123",
+            "guest_email": "guest@example.com"
+        }
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert "id" in data
+    assert data["status"] == "pending"
+    assert data["guest_name"] == "Guest User"
 
 
 def test_list_orders_as_customer(client, auth_headers, test_user, db):
