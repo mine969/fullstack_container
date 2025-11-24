@@ -20,7 +20,7 @@ pipeline {
         )
         string(
             name: 'API_HOST',
-            defaultValue: 'http://localhost:8000',
+            defaultValue: 'http://localhost:3002',
             description: 'API URL used by frontend'
         )
     }
@@ -173,7 +173,7 @@ EOF
 
                 echo "=== 🌐 Service URLs ==="
                 echo "Frontend:  http://localhost:3001"
-                echo "API:       http://localhost:8000"
+                echo "API:       http://localhost:3002"
                 """
             }
         }
