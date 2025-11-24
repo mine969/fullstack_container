@@ -2,7 +2,7 @@ FROM node:20-alpine AS builder
 
 # Accept build argument for API_HOST and NEXT_PUBLIC_API_URL
 ARG API_HOST=http://localhost:3001
-ARG NEXT_PUBLIC_API_URL=http://localhost:3002
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001
 
 WORKDIR /app
 
