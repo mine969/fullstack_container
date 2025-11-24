@@ -7,6 +7,8 @@
         "ms-azuretools.vscode-docker",
         "mrother.jenkinsfile-support",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-mysql"
+        "mtxr.sqltools-driver-mysql",
+        "icrawl.discord-vscode",
+        "ritwickdey.liveserver"
     ]
 }
