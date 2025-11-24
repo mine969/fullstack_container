@@ -9,6 +9,7 @@ pipeline {
     environment {
         BUILD_TAG = "${env.BUILD_NUMBER}"
         GIT_COMMIT_SHORT = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+        PATH = "/usr/local/bin:$PATH"
     }
 
     parameters {
@@ -168,43 +169,12 @@ EOF
 
         success {
             echo "✅ Deployment succeeded!"
-
-            mail to: 'devildog.kk@gmail.com',
-                 subject: "✅ SUCCESS: Deployment Completed (Build #${BUILD_TAG})",
-                 body: """
-Good news! Your deployment completed successfully.
-
-Build: ${BUILD_TAG}
-Commit: ${GIT_COMMIT_SHORT}
-
-Your services are live:
-
-Frontend:  http://localhost:3001
-API:       http://localhost:8000
-
-— Jenkins
-                 """
         }
 
         failure {
             echo "❌ Deployment failed. Showing logs…"
 
             sh "docker compose logs --tail=50 || true"
-
-            mail to: 'devildog.kk@gmail.com',
-                 subject: "❌ FAILURE: Deployment Failed (Build #${BUILD_TAG})",
-                 body: """
-Your deployment failed.
-
-Build: ${BUILD_TAG}
-Commit: ${GIT_COMMIT_SHORT}
-
-Logs have been printed in Jenkins.
-
-Please review the Jenkins console output to debug the issue.
-
-— Jenkins
-                 """
         }
 
         always {
