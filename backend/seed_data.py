@@ -46,10 +46,21 @@ def reset_and_seed():
         # 4. Seed Menu Items
         print("Seeding menu items...")
         items = [
-            models.MenuItem(name="Burger", description="Juicy beef burger", price=12.99, image_url="burger.jpg", is_available=True, category="Main"),
-            models.MenuItem(name="Pizza", description="Cheese pizza", price=15.99, image_url="pizza.jpg", is_available=True, category="Main"),
-            models.MenuItem(name="Salad", description="Fresh garden salad", price=8.99, image_url="salad.jpg", is_available=True, category="Side"),
-            models.MenuItem(name="Sushi", description="Salmon roll", price=18.99, image_url="sushi.jpg", is_available=True, category="Main"),
+            # Mains
+            models.MenuItem(name="Classic Burger", description="Juicy beef patty with lettuce, tomato, and cheese", price=12.99, image_url="burger.jpg", is_available=True, category="Main"),
+            models.MenuItem(name="Cheese Pizza", description="Traditional tomato sauce with mozzarella", price=14.99, image_url="pizza.jpg", is_available=True, category="Main"),
+            models.MenuItem(name="Grilled Salmon", description="Fresh salmon with asparagus", price=18.99, image_url="salmon.jpg", is_available=True, category="Main"),
+            models.MenuItem(name="Steak Frites", description="Ribeye steak with french fries", price=24.99, image_url="steak.jpg", is_available=True, category="Main"),
+            models.MenuItem(name="Chicken Alfredo", description="Creamy pasta with grilled chicken", price=16.99, image_url="pasta.jpg", is_available=True, category="Main"),
+            
+            # Sides
+            models.MenuItem(name="Caesar Salad", description="Romaine lettuce with croutons and parmesan", price=8.99, image_url="salad.jpg", is_available=True, category="Side"),
+            models.MenuItem(name="French Fries", description="Crispy golden fries", price=4.99, image_url="fries.jpg", is_available=True, category="Side"),
+            models.MenuItem(name="Onion Rings", description="Battered and fried onion rings", price=5.99, image_url="onion_rings.jpg", is_available=True, category="Side"),
+            
+            # Drinks
+            models.MenuItem(name="Cola", description="Refreshing cola drink", price=2.99, image_url="cola.jpg", is_available=True, category="Drink"),
+            models.MenuItem(name="Lemonade", description="Freshly squeezed lemonade", price=3.99, image_url="lemonade.jpg", is_available=True, category="Drink"),
         ]
         db.add_all(items)
         

@@ -14,10 +14,14 @@ class User(Base):
     hashed_password = Column("password_hash", String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationships (optional for current tests)
+    # Relationships
     customer = relationship("Customer", back_populates="user", uselist=False)
     driver_assignments = relationship("DriverAssignment", back_populates="driver")
     driver_locations = relationship("DriverLocation", back_populates="driver")
+    
+    # Direct Order relationships
+    orders = relationship("Order", back_populates="customer", foreign_keys="Order.customer_id")
+    assigned_orders = relationship("Order", back_populates="driver", foreign_keys="Order.driver_id")
 
 
 class Customer(Base):
@@ -30,5 +34,4 @@ class Customer(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("User", back_populates="customer")
-    orders = relationship("Order", back_populates="customer")
 

@@ -22,18 +22,47 @@ def create_order(
     if not customer_id and not (order.guest_name and order.guest_phone):
         raise HTTPException(status_code=400, detail="Guest name and phone required for guest orders")
 
-    # Simplified order creation logic
+    # Calculate total and prepare items
+    total_amount = 0
+    order_items_data = []
+    
+    for item in order.items:
+        menu_item = db.query(models.MenuItem).filter(models.MenuItem.id == item.menu_item_id).first()
+        if not menu_item:
+            raise HTTPException(status_code=404, detail=f"Menu item {item.menu_item_id} not found")
+        
+        item_total = menu_item.price * item.quantity
+        total_amount += item_total
+        order_items_data.append({
+            "menu_item_id": item.menu_item_id,
+            "quantity": item.quantity,
+            "item_price": menu_item.price
+        })
+
     db_order = models.Order(
         status="pending", 
         delivery_address=order.delivery_address,
         notes=order.notes,
-        total_amount=0, # Calculate based on items
+        total_amount=total_amount,
         customer_id=customer_id,
         guest_name=order.guest_name,
         guest_email=order.guest_email,
         guest_phone=order.guest_phone
     )
     db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+
+    # Save order items
+    for item_data in order_items_data:
+        db_item = models.OrderItem(
+            order_id=db_order.id,
+            menu_item_id=item_data["menu_item_id"],
+            quantity=item_data["quantity"],
+            item_price=item_data["item_price"]
+        )
+        db.add(db_item)
+    
     db.commit()
     db.refresh(db_order)
     return db_order
@@ -45,14 +74,11 @@ def read_orders(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_user)
 ):
-    # Filter based on role (manager sees all, driver sees assigned, customer sees own)
-    if current_user.role == "manager":
-        return db.query(models.Order).offset(skip).limit(limit).all()
+    # Filter by role
+    if current_user.role == "admin" or current_user.role == "manager":
+        return db.query(models.Order).all()
     elif current_user.role == "driver":
-        return db.query(models.Order).join(models.DriverAssignment).filter(
-            models.DriverAssignment.driver_id == current_user.id,
-            models.DriverAssignment.status == "active" # Assuming 'active' assignment
-        ).all() 
+        return db.query(models.Order).filter(models.Order.driver_id == current_user.id).all()
     else:
         return db.query(models.Order).filter(models.Order.customer_id == current_user.id).all()
 
@@ -77,4 +103,41 @@ def update_order_status(
     order.status = status_update.status
     db.commit()
     db.refresh(order)
+    return order
+
+class AssignDriverRequest(BaseModel):
+    driver_id: int
+
+@router.put("/{order_id}/assign", response_model=schemas.OrderResponse)
+def assign_driver(
+    order_id: int,
+    assign_req: AssignDriverRequest,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    if current_user.role not in ["admin", "manager"]:
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    driver = db.query(models.User).filter(models.User.id == assign_req.driver_id, models.User.role == "driver").first()
+    if not driver:
+        raise HTTPException(status_code=404, detail="Driver not found")
+        
+    order.driver_id = driver.id
+    order.status = "assigned" # Auto update status
+    db.commit()
+    db.refresh(order)
+    return order
+
+@router.get("/{order_id}", response_model=schemas.OrderResponse)
+def get_order(
+    order_id: int,
+    db: Session = Depends(database.get_db)
+):
+    order = db.query(models.Order).filter(models.Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
     return order

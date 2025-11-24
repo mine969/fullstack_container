@@ -12,12 +12,16 @@ class Order(Base):
     notes = Column(Text)
     total_amount = Column(DECIMAL(10, 2), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    customer_id = Column(Integer, ForeignKey("customers.id"), nullable=True)
+    
+    customer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     guest_name = Column(String(255), nullable=True)
     guest_email = Column(String(255), nullable=True)
     guest_phone = Column(String(50), nullable=True)
+    
+    driver_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    customer = relationship("Customer", back_populates="orders")
+    customer = relationship("User", back_populates="orders", foreign_keys=[customer_id])
+    driver = relationship("User", back_populates="assigned_orders", foreign_keys=[driver_id])
     items = relationship("OrderItem", back_populates="order")
     driver_assignment = relationship("DriverAssignment", back_populates="order", uselist=False)
     driver_location = relationship("DriverLocation", back_populates="order", uselist=False)

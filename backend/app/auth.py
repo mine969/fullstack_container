@@ -51,11 +51,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise credentials_exception
     return user
 
-async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme)) -> Optional[User]:
+async def get_current_user_optional(
+    token: Optional[str] = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
     if not token:
         return None
     try:
-        return await get_current_user(token)
+        return await get_current_user(token, db)
     except HTTPException:
         return None
 
