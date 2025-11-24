@@ -6,25 +6,15 @@ CREATE TABLE users (
     role VARCHAR(50) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE TABLE customers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    session_token VARCHAR(255),
-    name VARCHAR(255),
-    phone VARCHAR(50),
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id) REFERENCES users(id)
-);
-
 CREATE TABLE menu_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
     image_url VARCHAR(255),
-    is_available BOOLEAN DEFAULT TRUE
+    is_available BOOLEAN DEFAULT TRUE,
+    category VARCHAR(50) -- Added category column to match seed data logic
 );
-
 CREATE TABLE orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     status VARCHAR(50) NOT NULL,
@@ -33,9 +23,13 @@ CREATE TABLE orders (
     total_amount DECIMAL(10, 2) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     customer_id INT,
-    FOREIGN KEY (customer_id) REFERENCES customers(id)
+    guest_name VARCHAR(255),
+    guest_email VARCHAR(255),
+    guest_phone VARCHAR(50),
+    driver_id INT,
+    FOREIGN KEY (customer_id) REFERENCES users(id),
+    FOREIGN KEY (driver_id) REFERENCES users(id)
 );
-
 CREATE TABLE order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     menu_item_id INT,
@@ -45,7 +39,6 @@ CREATE TABLE order_items (
     FOREIGN KEY (menu_item_id) REFERENCES menu_items(id),
     FOREIGN KEY (order_id) REFERENCES orders(id)
 );
-
 CREATE TABLE driver_assignments (
     id INT AUTO_INCREMENT PRIMARY KEY,
     status VARCHAR(50) NOT NULL,
@@ -55,7 +48,6 @@ CREATE TABLE driver_assignments (
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (driver_id) REFERENCES users(id)
 );
-
 CREATE TABLE driver_locations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT,
@@ -66,29 +58,117 @@ CREATE TABLE driver_locations (
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (driver_id) REFERENCES users(id)
 );
-
-CREATE TABLE chat_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    order_id INT,
-    driver_id INT,
-    customer_id INT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders(id),
-    FOREIGN KEY (driver_id) REFERENCES users(id),
-    FOREIGN KEY (customer_id) REFERENCES customers(id)
-);
-
-CREATE TABLE messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    session_id INT,
-    sender_type VARCHAR(50) NOT NULL,
-    sender_id INT,
-    message TEXT NOT NULL,
-    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (session_id) REFERENCES chat_sessions(id)
-);
-
 -- Indexes for performance
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_driver_assignments_status ON driver_assignments(status);
 CREATE INDEX idx_users_email ON users(email);
+-- Seed Data: Users
+-- Password for all is 'admin123' -> $2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG
+INSERT INTO users (name, email, password_hash, role)
+VALUES (
+        'Admin Manager',
+        'admine123@gmail.com',
+        '$2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG',
+        'manager'
+    ),
+    (
+        'Kitchen Staff',
+        'kitchen123@gmail.com',
+        '$2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG',
+        'kitchen'
+    ),
+    (
+        'Delivery Driver',
+        'driver123@gmail.com',
+        '$2b$12$jNGZk2Wf1kGRrbMfTQKD7.j5pS0VpQLDrNvsasA3nADQQeTuMq.ZG',
+        'driver'
+    );
+-- Seed Data: Menu Items
+INSERT INTO menu_items (
+        name,
+        description,
+        price,
+        image_url,
+        is_available,
+        category
+    )
+VALUES (
+        'Classic Burger',
+        'Juicy beef patty with lettuce, tomato, and cheese',
+        12.99,
+        'burger.jpg',
+        TRUE,
+        'Main'
+    ),
+    (
+        'Cheese Pizza',
+        'Traditional tomato sauce with mozzarella',
+        14.99,
+        'pizza.jpg',
+        TRUE,
+        'Main'
+    ),
+    (
+        'Grilled Salmon',
+        'Fresh salmon with asparagus',
+        18.99,
+        'salmon.jpg',
+        TRUE,
+        'Main'
+    ),
+    (
+        'Steak Frites',
+        'Ribeye steak with french fries',
+        24.99,
+        'steak.jpg',
+        TRUE,
+        'Main'
+    ),
+    (
+        'Chicken Alfredo',
+        'Creamy pasta with grilled chicken',
+        16.99,
+        'pasta.jpg',
+        TRUE,
+        'Main'
+    ),
+    (
+        'Caesar Salad',
+        'Romaine lettuce with croutons and parmesan',
+        8.99,
+        'salad.jpg',
+        TRUE,
+        'Side'
+    ),
+    (
+        'French Fries',
+        'Crispy golden fries',
+        4.99,
+        'fries.jpg',
+        TRUE,
+        'Side'
+    ),
+    (
+        'Onion Rings',
+        'Battered and fried onion rings',
+        5.99,
+        'onion_rings.jpg',
+        TRUE,
+        'Side'
+    ),
+    (
+        'Cola',
+        'Refreshing cola drink',
+        2.99,
+        'cola.jpg',
+        TRUE,
+        'Drink'
+    ),
+    (
+        'Lemonade',
+        'Freshly squeezed lemonade',
+        3.99,
+        'lemonade.jpg',
+        TRUE,
+        'Drink'
+    );
