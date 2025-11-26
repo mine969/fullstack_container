@@ -73,20 +73,41 @@ export default function AdminDashboard() {
     loadData(token);
   };
 
+  const [editingId, setEditingId] = useState(null);
+
   const handleCreateMenuItem = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    await api.createMenuItem(newItem, token);
+    try {
+      if (editingId) {
+        await api.updateMenuItem(editingId, newItem, token);
+        alert('Item updated!');
+        setEditingId(null);
+      } else {
+        await api.createMenuItem(newItem, token);
+        alert('Item added!');
+      }
+      setNewItem({ name: '', description: '', price: '', category: 'Main' });
+      loadData(token);
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
     setNewItem({ name: '', description: '', price: '', category: 'Main' });
-    loadData(token);
-    alert('Item added!');
   };
 
   const handleDeleteMenuItem = async (id) => {
     if(!confirm('Are you sure?')) return;
     const token = localStorage.getItem('token');
-    await api.deleteMenuItem(id, token);
-    loadData(token);
+    try {
+      await api.deleteMenuItem(id, token);
+      loadData(token);
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   const handleRegisterStaff = async (e) => {
@@ -198,7 +219,7 @@ export default function AdminDashboard() {
           {activeTab === 'menu' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1 bg-cream-50 p-6 rounded-xl h-fit">
-                <h3 className="text-xl font-display text-brown-900 mb-4">Add New Item</h3>
+                <h3 className="text-xl font-display text-brown-900 mb-4">{editingId ? 'Edit Item' : 'Add New Item'}</h3>
                 <form onSubmit={handleCreateMenuItem} className="space-y-4">
                   <input type="text" placeholder="Name" className="w-full p-3 rounded-lg border border-cream-200" value={newItem.name} onChange={e => setNewItem({...newItem, name: e.target.value})} required />
                   <textarea placeholder="Description" className="w-full p-3 rounded-lg border border-cream-200" value={newItem.description} onChange={e => setNewItem({...newItem, description: e.target.value})} />
@@ -208,7 +229,12 @@ export default function AdminDashboard() {
                     <option value="Side">Side</option>
                     <option value="Drink">Drink</option>
                   </select>
-                  <button type="submit" className="w-full btn-primary">Add Item</button>
+                  <div className="flex gap-2">
+                    <button type="submit" className="w-full btn-primary">{editingId ? 'Update Item' : 'Add Item'}</button>
+                    {editingId && (
+                      <button type="button" onClick={handleCancelEdit} className="w-full bg-gray-300 text-gray-800 font-bold py-3 rounded-full hover:bg-gray-400 transition">Cancel</button>
+                    )}
+                  </div>
                 </form>
               </div>
               
@@ -218,8 +244,20 @@ export default function AdminDashboard() {
                     <div>
                       <h4 className="font-bold text-brown-900">{item.name}</h4>
                       <p className="text-sm text-brown-600">${item.price}</p>
+                      <p className="text-xs text-brown-500">{item.category}</p>
                     </div>
-                    <button onClick={() => handleDeleteMenuItem(item.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => {
+                          setEditingId(item.id);
+                          setNewItem({ ...item });
+                        }} 
+                        className="text-blue-500 hover:text-blue-700 text-sm font-bold"
+                      >
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteMenuItem(item.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">Delete</button>
+                    </div>
                   </div>
                 ))}
               </div>

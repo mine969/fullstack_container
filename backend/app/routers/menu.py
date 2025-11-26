@@ -32,7 +32,7 @@ def create_menu_item(
 @router.put("/{item_id}", response_model=schemas.MenuItemResponse)
 def update_menu_item(
     item_id: int,
-    item: schemas.MenuItemCreate,
+    item: schemas.MenuItemUpdate,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user)
 ):
