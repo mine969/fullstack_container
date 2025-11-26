@@ -42,6 +42,6 @@ def get_drivers(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(auth.get_current_active_user)
 ):
-    if current_user.role not in ["admin", "manager"]:
+    if current_user.role not in ["admin", "kitchen"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     return db.query(models.User).filter(models.User.role == "driver").all()

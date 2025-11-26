@@ -92,5 +92,42 @@ def test_kitchen_role():
     else:
         print(f"Status update failed: {resp.status_code} {resp.text}")
 
+    # 5. Verify Tracking (by Order ID)
+    print(f"Verifying tracking endpoint for Order ID {order_id}...")
+    resp = requests.get(f"{API_URL}/guest/track/{order_id}")
+    if resp.status_code == 200:
+        print("Tracking endpoint works!")
+        print(resp.json())
+    else:
+        print(f"Tracking endpoint failed: {resp.status_code} {resp.text}")
+
+    # 6. Verify Delivery Assignment (Kitchen Role)
+    # Need a driver first
+    driver_email = "driver_test@example.com"
+    driver_password = "password123"
+    print("Creating driver user...")
+    driver_data = {"email": driver_email, "password": driver_password, "name": "Driver", "role": "driver"}
+    requests.post(f"{API_URL}/users/", json=driver_data)
+    
+    # Get driver ID (login to get it or assume from creation if it returned it, but creation might fail if exists)
+    # Let's login as driver to get ID
+    resp = requests.post(f"{API_URL}/auth/login", data={"username": driver_email, "password": driver_password})
+    if resp.status_code == 200:
+        driver_token = resp.json()["access_token"]
+        # Get me
+        resp = requests.get(f"{API_URL}/users/me", headers={"Authorization": f"Bearer {driver_token}"})
+        driver_id = resp.json()["id"]
+        
+        print(f"Assigning driver {driver_id} to order {order_id} as kitchen...")
+        assign_data = {"driver_id": driver_id}
+        resp = requests.put(f"{API_URL}/orders/{order_id}/assign", json=assign_data, headers=headers)
+        if resp.status_code == 200:
+            print("Driver assignment successful!")
+            print(resp.json())
+        else:
+            print(f"Driver assignment failed: {resp.status_code} {resp.text}")
+    else:
+        print("Failed to login as driver to get ID.")
+
 if __name__ == "__main__":
     test_kitchen_role()

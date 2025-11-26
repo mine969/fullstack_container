@@ -56,7 +56,7 @@ export default function TrackOrder() {
                 type="text"
                 required
                 className="appearance-none rounded-lg relative block w-full px-3 py-3 border border-cream-100 placeholder-gray-400 text-brown-900 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="e.g. TRACK-001"
+                placeholder="e.g. 123 (Order ID)"
                 value={trackingId}
                 onChange={(e) => setTrackingId(e.target.value)}
               />

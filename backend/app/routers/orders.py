@@ -4,7 +4,7 @@ from typing import List
 from .. import database, models, auth
 from ..schemas import order as schemas
 from pydantic import BaseModel
-import uuid
+
 
 router = APIRouter(
     prefix="/orders",
@@ -48,8 +48,7 @@ def create_order(
         customer_id=customer_id,
         guest_name=order.guest_name,
         guest_email=order.guest_email,
-        guest_phone=order.guest_phone,
-        tracking_id=str(uuid.uuid4())
+        guest_phone=order.guest_phone
     )
     db.add(db_order)
     db.commit()
