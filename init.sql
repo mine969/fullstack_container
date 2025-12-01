@@ -13,7 +13,7 @@ CREATE TABLE menu_items (
     price DECIMAL(10, 2) NOT NULL,
     image_url VARCHAR(255),
     is_available BOOLEAN DEFAULT TRUE,
-    is_deleted BOOLEAN DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT TRUE,
     category VARCHAR(50)
 );
 CREATE TABLE orders (
