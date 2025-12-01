@@ -127,8 +127,14 @@ EOF
         stage('Deploy Services') {
             steps {
                 echo "🚀 Deploying Services..."
-                // Stop and remove existing containers to prevent name conflicts
-                sh 'docker-compose down || true'
+                script {
+                    if (params.CLEAN_VOLUMES) {
+                        echo "🧹 Cleaning volumes as requested..."
+                        sh 'docker-compose down -v || true'
+                    } else {
+                        sh 'docker-compose down || true'
+                    }
+                }
                 sh 'docker-compose up -d'
             }
         }
