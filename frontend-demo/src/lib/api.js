@@ -136,7 +136,13 @@ export const api = {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },
     });
-    if (!res.ok) throw new Error('Failed to delete menu item');
+    if (!res.ok) {
+      if (res.status === 401) {
+        throw new Error('Session expired');
+      }
+      const error = await res.json();
+      throw new Error(error.detail || 'Failed to delete menu item');
+    }
     return res.json();
   },
 
@@ -153,6 +159,33 @@ export const api = {
       const error = await res.json();
       throw new Error(error.detail || 'Upload failed');
     }
+    return res.json();
+  },
+
+  getUsers: async (token) => {
+    const res = await fetch(`${API_URL}/users/`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to fetch users');
+    return res.json();
+  },
+
+  updateUser: async (id, data, token) => {
+    const res = await fetch(`${API_URL}/users/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error('Failed to update user');
+    return res.json();
+  },
+
+  deleteUser: async (id, token) => {
+    const res = await fetch(`${API_URL}/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error('Failed to delete user');
     return res.json();
   },
 };

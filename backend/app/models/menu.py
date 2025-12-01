@@ -11,3 +11,4 @@ class MenuItem(Base):
     image_url = Column(String(255))
     category = Column(String(50))
     is_available = Column(Boolean, default=True)
+    is_deleted = Column(Boolean, default=False)

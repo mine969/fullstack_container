@@ -11,7 +11,7 @@ router = APIRouter(
 
 @router.get("/", response_model=List[schemas.MenuItemResponse])
 def read_menu_items(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
-    items = db.query(models.MenuItem).offset(skip).limit(limit).all()
+    items = db.query(models.MenuItem).filter(models.MenuItem.is_deleted == False).offset(skip).limit(limit).all()
     return items
 
 @router.post("/", response_model=schemas.MenuItemResponse)
@@ -63,6 +63,6 @@ def delete_menu_item(
     if not db_item:
         raise HTTPException(status_code=404, detail="Item not found")
         
-    db.delete(db_item)
+    db_item.is_deleted = True
     db.commit()
     return {"message": "Item deleted"}

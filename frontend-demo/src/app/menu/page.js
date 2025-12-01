@@ -11,6 +11,7 @@ export default function Menu() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [guestDetails, setGuestDetails] = useState({ name: '', phone: '', address: '' });
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const router = useRouter();
 
   useEffect(() => {
@@ -20,7 +21,16 @@ export default function Menu() {
   const loadMenu = async () => {
     try {
       const items = await api.getMenu();
-      setMenuItems(items);
+      // Sort items: Burgers first
+      const sortedItems = items.sort((a, b) => {
+        const isBurgerA = a.name.toLowerCase().includes('burger') || (a.category && a.category.toLowerCase().includes('burger'));
+        const isBurgerB = b.name.toLowerCase().includes('burger') || (b.category && b.category.toLowerCase().includes('burger'));
+        
+        if (isBurgerA && !isBurgerB) return -1;
+        if (!isBurgerA && isBurgerB) return 1;
+        return 0;
+      });
+      setMenuItems(sortedItems);
     } catch (err) {
       setError('Failed to load menu');
     } finally {
@@ -112,7 +122,7 @@ export default function Menu() {
           <div className="flex justify-between h-20 items-center">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/logo.png" alt="Logo" width={40} height={40} className="w-10 h-10 object-contain" />
-              <span className="text-2xl font-display text-primary tracking-wider transform rotate-[-2deg]">BURGER DELIVERY</span>
+              <span className="text-2xl font-display text-primary tracking-wider transform rotate-[-2deg]">KITCHEN BELL</span>
             </Link>
             <div className="flex items-center gap-6">
               <Link href="/track" className="font-bold text-brown-900 hover:text-primary transition">Track Order</Link>
@@ -130,8 +140,38 @@ export default function Menu() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-4xl font-display text-brown-900 mb-6 border-b-4 border-primary inline-block pb-1">OUR MENU</h2>
+            
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              <button
+                onClick={() => setSelectedCategory('All')}
+                className={`px-6 py-2 rounded-full font-bold transition-all ${
+                  selectedCategory === 'All' 
+                    ? 'bg-primary text-white shadow-lg transform scale-105' 
+                    : 'bg-white text-brown-900 hover:bg-cream-200'
+                }`}
+              >
+                All
+              </button>
+              {[...new Set(menuItems.map(item => item.category || 'Other'))].sort().map(category => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-6 py-2 rounded-full font-bold transition-all ${
+                    selectedCategory === category 
+                      ? 'bg-primary text-white shadow-lg transform scale-105' 
+                      : 'bg-white text-brown-900 hover:bg-cream-200'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {menuItems.map((item) => (
+              {menuItems
+                .filter(item => selectedCategory === 'All' || (item.category || 'Other') === selectedCategory)
+                .map((item) => (
                 <div key={item.id} className="card group hover:border-primary transition-colors">
                   <div className="h-48 bg-cream-100 relative overflow-hidden">
                      {item.image_url ? (
@@ -140,6 +180,7 @@ export default function Menu() {
                           alt={item.name} 
                           fill 
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
+                          unoptimized
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';

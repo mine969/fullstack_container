@@ -36,6 +36,44 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)
 @router.get("/me", response_model=schemas.UserResponse)
 def read_users_me(current_user: models.User = Depends(auth.get_current_active_user)):
     return current_user
+# backend/app/routers/users.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from typing import List
+from .. import database, models, auth
+from ..schemas import user as schemas
+
+router = APIRouter(prefix="/users", tags=["users"])
+
+ALLOWED_ROLES = {"customer", "driver", "admin", "kitchen"}
+
+@router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
+    # Validate role
+    if user.role not in ALLOWED_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role. Must be one of: customer, manager, driver",
+        )
+    # Duplicate-email check
+    if db.query(models.User).filter(models.User.email == user.email).first():
+        raise HTTPException(status_code=400, detail="Email already registered")
+    # Hash password and create user
+    hashed_password = auth.get_password_hash(user.password)
+    db_user = models.User(
+        email=user.email,
+        name=user.name,
+        role=user.role,
+        hashed_password=hashed_password,
+    )
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@router.get("/me", response_model=schemas.UserResponse)
+def read_users_me(current_user: models.User = Depends(auth.get_current_active_user)):
+    return current_user
 
 @router.get("/drivers", response_model=List[schemas.UserResponse])
 def get_drivers(
@@ -45,3 +83,61 @@ def get_drivers(
     if current_user.role not in ["admin", "kitchen"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     return db.query(models.User).filter(models.User.role == "driver").all()
+
+@router.get("/", response_model=List[schemas.UserResponse])
+def read_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    users = db.query(models.User).offset(skip).limit(limit).all()
+    return users
+
+@router.put("/{user_id}", response_model=schemas.UserResponse)
+def update_user(
+    user_id: int,
+    user_update: schemas.UserUpdate,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if user_update.email:
+        db_user.email = user_update.email
+    if user_update.name:
+        db_user.name = user_update.name
+    if user_update.role:
+        if user_update.role not in ALLOWED_ROLES:
+             raise HTTPException(status_code=400, detail="Invalid role")
+        db_user.role = user_update.role
+    if user_update.password:
+        db_user.hashed_password = auth.get_password_hash(user_update.password)
+        
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+@router.delete("/{user_id}")
+def delete_user(
+    user_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(auth.get_current_active_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not authorized")
+        
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    db.delete(db_user)
+    db.commit()
+    return {"message": "User deleted"}
