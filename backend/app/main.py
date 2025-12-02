@@ -12,7 +12,7 @@ app = FastAPI(title="Food Delivery API")
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# CORS Configuration
+# CORS Configuration (updated for deployment)
 origins = [
     "http://localhost:3000", # Frontend
     "http://localhost:3001", # API
