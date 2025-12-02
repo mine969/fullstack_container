@@ -11,8 +11,13 @@ DB_PORT = os.getenv("DB_PORT", "3306")
 DB_NAME = os.getenv("DB_NAME", "food_delivery")
 
 # Prioritize DATABASE_URL if set (common in cloud providers)
+# Prioritize DATABASE_URL if set (common in cloud providers)
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
-if not SQLALCHEMY_DATABASE_URL:
+if SQLALCHEMY_DATABASE_URL:
+    # Fix for Render/Heroku using postgres:// which SQLAlchemy 1.4+ doesn't support
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+else:
     SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)

@@ -55,6 +55,34 @@ else
     echo ".env file already exists. Skipping creation."
 fi
 
+# 3.5 Configure Public IP/Domain
+echo "Configuring Public IP/Domain..."
+if ! grep -q "NEXT_PUBLIC_API_URL" .env; then
+    read -p "Enter your Oracle Cloud VM Public IP or Domain (e.g., 123.45.67.89): " PUBLIC_IP
+    if [ ! -z "$PUBLIC_IP" ]; then
+        # Remove trailing slash if user added it
+        PUBLIC_IP=${PUBLIC_IP%/}
+        
+        # Check if it starts with http, if not add http://
+        if [[ "$PUBLIC_IP" != http* ]]; then
+            PUBLIC_IP="http://$PUBLIC_IP"
+        fi
+        
+        echo "Setting API URL to $PUBLIC_IP:3001"
+        
+        # Add NEXT_PUBLIC_API_URL to .env
+        echo "" >> .env
+        echo "NEXT_PUBLIC_API_URL=$PUBLIC_IP:3001" >> .env
+        
+        # Also update API_HOST
+        sed -i "s|API_HOST=http://localhost:3001|API_HOST=$PUBLIC_IP:3001|g" .env
+    else
+        echo "No IP provided. Defaulting to localhost (might not work for remote access)."
+    fi
+else
+    echo "NEXT_PUBLIC_API_URL already set in .env. Skipping configuration."
+fi
+
 # 4. Build and Start Containers
 echo "Building and starting containers..."
 # Use the docker compose command (v2)
