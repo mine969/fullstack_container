@@ -42,11 +42,12 @@ def verify_tracking_fix():
             print("PASS: Tracking endpoint returned success.")
             tracked_order = track_resp.json()
             if tracked_order['id'] == order['id']:
-                print("PASS: Tracked order matches original order.")
+                 print("PASS: Tracked order matches original order.")
             else:
-                print("FAILED: Tracked order ID mismatch.")
+                 print(f"FAILED: Tracked order ID mismatch. Got {tracked_order['id']}, expected {order['id']}")
         else:
             print(f"FAILED: Tracking endpoint error. {track_resp.status_code} {track_resp.text}")
+            print("Note: If using separate Tracking Table, ensure the ID used matches the Tracking Table ID.")
 
     except Exception as e:
         print(f"ERROR: Execution failed: {str(e)}")

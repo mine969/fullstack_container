@@ -28,6 +28,9 @@ class Order(Base):
     payment = relationship("Payment", back_populates="order", uselist=False) # Added
     driver_assignment = relationship("DriverAssignment", back_populates="order", uselist=False)
     driver_location = relationship("DriverLocation", back_populates="order", uselist=False)
+    
+    # Relationship to Tracking
+    tracking_info = relationship("Tracking", back_populates="order", uselist=False)
 
 class OrderItem(Base):
     __tablename__ = "order_items"

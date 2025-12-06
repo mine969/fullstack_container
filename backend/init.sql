@@ -60,6 +60,35 @@ CREATE TABLE order_items (
     order_id INT REFERENCES orders(id)
 );
 -- ===========================
+-- TRACKING
+-- ===========================
+CREATE TABLE tracking (
+    id SERIAL PRIMARY KEY,
+    order_id INT REFERENCES orders(id),
+    status VARCHAR(50),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+-- Seed Tracking Data for existing orders
+INSERT INTO tracking (order_id, status, updated_at)
+VALUES (1, 'delivered', '2025-11-26 13:08:26'),
+    (2, 'paid', '2025-11-26 13:08:26'),
+    (3, 'pending', '2025-11-26 13:08:26'),
+    (4, 'cooking', '2025-11-26 13:08:26'),
+    (5, 'ready', '2025-11-26 13:08:26'),
+    (6, 'delivered', '2025-11-26 13:08:26'),
+    (7, 'delivered', '2025-11-26 13:08:26'),
+    (8, 'delivered', '2025-11-26 13:08:26'),
+    (9, 'delivered', '2025-11-26 13:08:26'),
+    (10, 'delivered', '2025-11-26 13:08:26'),
+    (11, 'delivered', '2025-11-26 13:08:26'),
+    (12, 'delivered', '2025-11-26 13:08:26'),
+    (13, 'delivered', '2025-11-26 13:08:26'),
+    (14, 'delivered', '2025-11-26 13:08:26'),
+    (15, 'delivered', '2025-11-26 13:08:26'),
+    (16, 'delivered', '2025-11-26 13:08:26'),
+    (17, 'delivered', '2025-11-26 13:08:26'),
+    (18, 'delivered', '2025-12-01 17:16:51');
+-- ===========================
 -- PAYMENTS
 -- ===========================
 CREATE TABLE payments (

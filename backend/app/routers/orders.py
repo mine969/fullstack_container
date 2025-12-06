@@ -55,6 +55,21 @@ def create_order(
     db.commit()
     db.refresh(db_order)
 
+    # Create Tracking Record (Separate Table)
+    db_tracking = models.Tracking(
+        order_id=db_order.id,
+        status="pending"
+    )
+    db.add(db_tracking)
+    db.commit()
+    db.refresh(db_tracking)
+    
+    # Fake/Inject the Tracking ID into the response object so the Schema picks it up
+    # Schema expects 'tracking_id' (str). We give it the new Tracking Table ID.
+    db_order.tracking_id = str(db_tracking.id)
+
+    # Save order items
+
     # Save order items
     for item_data in order_items_data:
         db_item = models.OrderItem(

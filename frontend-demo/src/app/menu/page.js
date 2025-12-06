@@ -352,8 +352,8 @@ export default function Menu() {
             <p className="text-brown-600 mb-8">Your delicious food is on the way.</p>
             
             <div className="bg-cream-50 rounded-xl p-6 mb-8 border border-cream-100">
-              <p className="text-sm text-brown-500 uppercase tracking-widest font-bold mb-2">Order ID</p>
-              <p className="text-4xl font-display text-primary tracking-wider">{orderResult.id}</p>
+              <p className="text-sm text-brown-500 uppercase tracking-widest font-bold mb-2">Tracking ID</p>
+              <p className="text-4xl font-display text-primary tracking-wider">{orderResult.tracking_id}</p>
               <p className="text-xs text-brown-400 mt-2">Save this ID to track your order</p>
             </div>
             
