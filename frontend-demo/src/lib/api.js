@@ -188,4 +188,10 @@ export const api = {
     if (!res.ok) throw new Error('Failed to delete user');
     return res.json();
   },
+
+  trackOrder: async (trackingId) => {
+    const res = await fetch(`${API_URL}/guest/track/${trackingId}`);
+    if (!res.ok) throw new Error('Order not found');
+    return res.json();
+  },
 };

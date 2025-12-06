@@ -16,14 +16,8 @@ export default function TrackOrder() {
     setError('');
     setOrder(null);
     try {
-      // Assuming api.trackOrder exists or we use direct fetch
-      // Since api.js doesn't have trackOrder yet, we'll fetch directly or add it.
-      // Let's use direct fetch for now to match the pattern or update api.js later.
-      // Actually, let's update api.js first or just fetch here.
-      // Using fetch directly for simplicity in this step, but ideally should be in api.js
-      const res = await fetch(`http://localhost:3001/guest/track/${trackingId}`);
-      if (!res.ok) throw new Error('Order not found');
-      const data = await res.json();
+      // Using api.trackOrder for consistent URL handling
+      const data = await api.trackOrder(trackingId);
       setOrder(data);
     } catch (err) {
       setError('Order not found. Please check your Tracking ID.');
