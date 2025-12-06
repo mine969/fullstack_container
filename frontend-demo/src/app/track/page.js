@@ -17,10 +17,13 @@ export default function TrackOrder() {
     setOrder(null);
     try {
       // Using api.trackOrder for consistent URL handling
+      console.log('Tracking Order ID:', trackingId);
       const data = await api.trackOrder(trackingId);
+      console.log('Tracking Result:', data);
       setOrder(data);
     } catch (err) {
-      setError('Order not found. Please check your Tracking ID.');
+      console.error('Tracking Error:', err);
+      setError(`Order not found. Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
