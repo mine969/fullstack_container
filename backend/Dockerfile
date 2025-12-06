@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Copy init SQL
-COPY init.sql /app/init.sql
+# init.sql is copied via COPY . .
 
 # Copy startup script
 COPY startup.sh /app/startup.sh
