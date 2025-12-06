@@ -1,57 +1,71 @@
 import requests
 import json
-import uuid
 
-API_URL = "http://localhost:3001"
+BASE_URL = "https://food-delivery-api-r6ih.onrender.com"
 
-def verify_tracking_fix():
-    print("1. Creating a new guest order...")
-    # 1. Create Order
-    order_data = {
-        "items": [
-            {"menu_item_id": 1, "quantity": 1} # Assuming item 1 exists from seed
-        ],
-        "delivery_address": "123 Verification St",
-        "guest_name": "Verify User",
-        "guest_phone": "555-0199"
+def test_create_and_track_guest_order():
+    print(f"\n[TEST] Creating Guest Order on {BASE_URL}...")
+    
+    # 1. Get Menu Item ID (any)
+    try:
+        menu_res = requests.get(f"{BASE_URL}/menu/")
+        if menu_res.status_code != 200 or not menu_res.json():
+            print("❌ FAILURE: Could not fetch menu items.")
+            return False
+        menu_item_id = menu_res.json()[0]['id']
+    except Exception as e:
+        print(f"❌ ERROR fetching menu: {e}")
+        return False
+
+    # 2. Create Order
+    order_payload = {
+        "items": [{"menu_item_id": menu_item_id, "quantity": 1}],
+        "delivery_address": "123 Test St",
+        "guest_name": "Tracking Verify",
+        "guest_phone": "555-0199",
+        "guest_email": "track@example.com"
     }
     
     try:
-        resp = requests.post(f"{API_URL}/orders/", json=order_data)
-        if resp.status_code != 200:
-            print(f"FAILED: Order creation failed. {resp.status_code} {resp.text}")
-            return
-
-        order = resp.json()
-        print("Order Created Successfully!")
-        print(f"Order ID: {order.get('id')}")
+        # Note: Guest order creation does NOT require auth headers
+        create_res = requests.post(f"{BASE_URL}/orders/", json=order_payload)
+        print(f"   Create Status: {create_res.status_code}")
         
-        # We expect ID to be present and numeric (int)
-        order_id = order.get('id')
-        if not order_id or not isinstance(order_id, int):
-             print("FAILED: Order ID invalid or missing")
-             return
-
-        print("PASS: Numeric Order ID generated correctly.")
-
-        # 2. Track Request using Numeric ID
-        print(f"2. Testing tracking endpoint with ID: {order_id}")
-        track_resp = requests.get(f"{API_URL}/guest/track/{order_id}")
+        if create_res.status_code != 200:
+            print(f"❌ FAILURE: Create Order failed: {create_res.text}")
+            return False
+            
+        order_data = create_res.json()
+        tracking_id = order_data.get("tracking_id")
+        order_id = order_data.get("id")
         
-        if track_resp.status_code == 200:
-            print("PASS: Tracking endpoint returned success.")
-            tracked_order = track_resp.json()
-            if tracked_order['id'] == order['id']:
-                 print("PASS: Tracked order matches original order.")
-            else:
-                 print(f"FAILED: Tracked order ID mismatch. Got {tracked_order['id']}, expected {order['id']}")
-        else:
-            print(f"FAILED: Tracking endpoint error. {track_resp.status_code} {track_resp.text}")
-            print("Note: If using separate Tracking Table, ensure the ID used matches the Tracking Table ID.")
-
+        print(f"   ✅ Order Created. ID: {order_id}, Tracking ID: {tracking_id}")
+        
+        if not tracking_id:
+            print("❌ FAILURE: No tracking_id returned in response.")
+            return False
+            
     except Exception as e:
-        print(f"ERROR: Execution failed: {str(e)}")
-        print("Is the backend server running on port 3001?")
+        print(f"❌ ERROR creating order: {e}")
+        return False
+
+    # 3. Track Order
+    print(f"\n[TEST] Tracking Order {tracking_id}...")
+    try:
+        track_res = requests.get(f"{BASE_URL}/guest/track/{tracking_id}")
+        print(f"   Track Status: {track_res.status_code}")
+        
+        if track_res.status_code == 200:
+            print("✅ SUCCESS: Tracking worked!")
+            print(f"   Status: {track_res.json().get('status')}")
+            return True
+        else:
+            print(f"❌ FAILURE: Tracking failed: {track_res.text}")
+            return False
+            
+    except Exception as e:
+        print(f"❌ ERROR tracking: {e}")
+        return False
 
 if __name__ == "__main__":
-    verify_tracking_fix()
+    test_create_and_track_guest_order()

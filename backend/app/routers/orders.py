@@ -82,6 +82,10 @@ def create_order(
     
     db.commit()
     db.refresh(db_order)
+    
+    # Re-inject Tracking ID (refresh wipes it out)
+    db_order.tracking_id = str(db_tracking.id)
+    
     return db_order
 
 @router.get("/", response_model=List[schemas.OrderResponse])
